@@ -1,0 +1,34 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: ${env.appName}
+  messages:
+    basename: i18n
+    encoding: UTF-8
+  threads:
+    virtual:
+      enabled: true
+
+logging:
+  config: classpath:logback-spring-dev.xml
+  file:
+    path: classpath:/
+    name: log
+  charset:
+    file: UTF-8
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    filter: true
+env:
+  appName: 'spring-boot-template'
+  version: '0.0.1'
+  isEnableSwagger: true
+  libs: classpath:/libs
+  jwt:
+    expire: 30
+    tokenHeader: Authorization
+    tokenPrefix: 'Bearer'
+    privateKey: classpath:private.pem
+    publicKey: classpath:public.pem
