@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +18,8 @@ import top.werls.springboottemplate.config.SwaggerConfig;
 @Tag(name = "DemoApi", description = "the DemoApi API")
 @RestController
 public class DemoApi {
-
+  @Autowired
+  private MessageChannel mqttOutputChannel;
 
   @Autowired
   private MessageUtils messageUtils;
@@ -24,6 +27,10 @@ public class DemoApi {
   @Operation(summary = "getDemo", description = "getDemo")
   @GetMapping(value = "/demo")
   public String getHello() {
+    mqttOutputChannel.send(MessageBuilder.withPayload("Hello MQTT v5")
+        .setHeader("mqtt_topic", "test/topic")
+
+        .build());
     return "Hello World!";
   }
 

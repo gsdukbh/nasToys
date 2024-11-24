@@ -25,6 +25,17 @@ public class ConfigProperties {
   private boolean isEnableSwagger = false;
   private FileProperties fileConfig = new FileProperties();
   private JwtProperties jwt = new JwtProperties();
+  private MqttProperties mqtt = new MqttProperties();
+
+  @Data
+  public static  class  MqttProperties {
+    private String host="ssl://localhost:1883";
+    private String clientId="spring-boot-mqtt";
+    private String[] defaultTopic={"test"};
+    private Integer qos=2;
+    private String username="admin";
+    private String password="admin";
+  }
 
   @Data
   public static class FileProperties {

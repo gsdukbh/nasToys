@@ -1,8 +1,10 @@
 package top.werls.springboottemplate;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.messaging.MessageChannel;
 
 /**
  * @author leejiawei
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @Slf4j
 public class SpringBootTemplateApplication {
+
 
   public static void main(String[] args) {
     var context = SpringApplication.run(SpringBootTemplateApplication.class, args);

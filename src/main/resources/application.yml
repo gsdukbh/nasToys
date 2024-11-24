@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8080
 spring:
   application:
     name: ${env.appName}
@@ -32,3 +32,9 @@ env:
     tokenPrefix: 'Bearer'
     privateKey: classpath:private.pem
     publicKey: classpath:public.pem
+  mqtt:
+    username: nas
+    password: lijiawei
+    default-topic:
+      - "test/topic"
+    host: "ssl://localhost:1883"

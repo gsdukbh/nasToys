@@ -1,0 +1,14 @@
+# 这个是搭建mosquitto 测试sd
+version: '3.9'
+services:
+  mqtt-server:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt
+    ports:
+      - '18833:1883'
+    volumes:
+      - './mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf'
+      - './mosquitto/ca.crt:/mosquitto/config/ca.crt'
+      - './mosquitto/server.crt:/mosquitto/config/server.crt'
+      - './mosquitto/server.key:/mosquitto/config/server.key'
+      - './mosquitto/mosquitto_passwordfile:/mosquitto/config/mosquitto_passwordfile'
