@@ -22,15 +22,12 @@ repositories {
 dependencies {
 
 
-    def gsonVersion = '2.11.0'
-    def lang3Version = '3.12.0'
-    def springdocVersion = '2.7.0'
 
-    implementation "com.google.code.gson:gson:${gsonVersion}"
-    implementation "org.apache.commons:commons-lang3:${lang3Version}"
+    implementation "com.google.code.gson:gson:2.13.1"
+    implementation "org.apache.commons:commons-lang3:3.12.0"
 
     // spring doc https://springdoc.org
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9"
 
     def jwtVersion = '0.12.5'
     // jwt
