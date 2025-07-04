@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import top.werls.nastoys.system.entity.SysUser;
 
 @SpringBootTest
-class SpringBootTemplateApplicationTests {
+class NaToysApplicationTests {
 
     @Test
     void contextLoads() {
