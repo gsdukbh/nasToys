@@ -10,11 +10,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import top.werls.nastoys.system.repository.SysUserRepository;
 
 
 @Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
+
+  private SysUserRepository userRepository;
+
+  public UserDetailsServiceImpl(SysUserRepository sysUserRepository) {
+    this.userRepository = sysUserRepository;
+  }
 
   /**
    * Locates the user based on the username. In the actual implementation, the search may possibly
@@ -31,12 +38,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
     List<GrantedAuthority> authorities = new ArrayList<>();
-    authorities.add(() -> "ROLE_USER");
-    User user =
+    authorities.add(() -> "ROLE_ADMIN");
+    var u =   userRepository.findByUsername(username);
+    return  new User(username,u.getPassword(),authorities);
+/*        User user =
         new User(username, "$2a$10$ff5LAedpha10wc77nKjtc.J0FlkP4mAMMVvkVQV1H57Y7p0ekqo8e", true,
             true, true, true, authorities);
-    return user;
+     return user;*/
   }
-
-
 }

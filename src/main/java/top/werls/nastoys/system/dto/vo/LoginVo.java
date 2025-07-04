@@ -1,4 +1,4 @@
-package top.werls.nastoys.system.vo;
+package top.werls.nastoys.system.dto.vo;
 
 
 import lombok.Data;

@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import top.werls.nastoys.common.utils.JwtTokenUtils;
-import top.werls.nastoys.system.param.LoginParam;
+import top.werls.nastoys.system.dto.param.LoginParam;
 import top.werls.nastoys.system.service.SysUserService;
-import top.werls.nastoys.system.vo.LoginVo;
+import top.werls.nastoys.system.dto.vo.LoginVo;
 
 
 @Service

@@ -5,6 +5,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import top.werls.nastoys.entity.Machine;
+import top.werls.nastoys.repository.MachineRepository;
 
 /**
  * wol 服务 发送wol 数据包
@@ -18,6 +20,37 @@ import org.springframework.stereotype.Service;
 public class WolService {
 
   private static final int PORT = 9; // WOL 标准端口是 9 或 7
+
+  private final MachineRepository machineRepository;
+
+  public WolService(MachineRepository machineRepository) {
+    this.machineRepository = machineRepository;
+  }
+
+  /**
+   * 保存机器信息
+   * @param v 机器信息
+   */
+  public void savaMachine(Machine v){
+    machineRepository.save(v);
+  }
+
+  /**
+   * 根据机器 ID 唤醒机器
+   * @param id 机器 ID
+   */
+  public  void wolMacById(Long id) {
+    var machine = machineRepository.findById(id).orElseThrow(() -> new RuntimeException("机器不存在"));
+    if (machine.getMac() == null || machine.getMac().isEmpty()) {
+      throw new RuntimeException("机器 MAC 地址不能为空");
+    }
+    if (machine.getBroadcastIp() == null || machine.getBroadcastIp().isEmpty()) {
+      throw new RuntimeException("机器广播地址不能为空");
+    }
+    sendMagicPacket(machine.getMac(), machine.getBroadcastIp());
+  }
+
+
 
   /**
    * 发送 WOL 魔法数据包

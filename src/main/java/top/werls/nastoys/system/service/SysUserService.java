@@ -1,8 +1,8 @@
 package top.werls.nastoys.system.service;
 
 
-import top.werls.nastoys.system.param.LoginParam;
-import top.werls.nastoys.system.vo.LoginVo;
+import top.werls.nastoys.system.dto.param.LoginParam;
+import top.werls.nastoys.system.dto.vo.LoginVo;
 
 public interface SysUserService {
 

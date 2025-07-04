@@ -4,6 +4,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest.EndpointRequestMatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -64,6 +66,7 @@ public class SecurityConfig {
     }
     http.cors(withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(EndpointRequest.toAnyEndpoint())
         .authorizeHttpRequests(
             (requests) -> requests.requestMatchers("/login").permitAll().anyRequest()
                 .authenticated())

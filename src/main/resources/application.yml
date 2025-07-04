@@ -9,6 +9,17 @@ spring:
   threads:
     virtual:
       enabled: true
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:db.sqlite
 
 logging:
   config: classpath:logback-spring-dev.xml
