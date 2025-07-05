@@ -27,13 +27,6 @@ public class WolService {
     this.machineRepository = machineRepository;
   }
 
-  /**
-   * 保存机器信息
-   * @param v 机器信息
-   */
-  public void savaMachine(Machine v){
-    machineRepository.save(v);
-  }
 
   /**
    * 根据机器 ID 唤醒机器

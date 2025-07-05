@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -20,68 +22,55 @@ import org.hibernate.proxy.HibernateProxy;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @Schema(description = "用户实体类")
 @Entity
-@Table(name = "sys_user", uniqueConstraints = {
-    @UniqueConstraint(name = "uc_sysuser_username", columnNames = {"username"})
-})
+@Table(
+    name = "sys_user",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uc_sysuser_username",
+          columnNames = {"username"})
+    })
 public class SysUser implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long uid;
+  @Serial private static final long serialVersionUID = 1L;
 
-    @Schema(description = "用户名", example = "admin")
-    private String username;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long uid;
 
-    @Schema(description = "密码", example = "123456")
-    @ToString.Exclude
-    private String password;
+  @NotBlank(message = "用户名不能为空")
+  @Schema(description = "用户名", example = "admin")
+  private String username;
 
-    @Schema
-    private String salt;
+  @Schema(description = "密码", example = "123456")
+  @ToString.Exclude
+  @NotBlank(message = "密码不能为空")
+  private String password;
 
-    @Schema(description = "电话", example = "1231")
-    private String phone;
-    @Schema(description = "邮箱")
-    private String email;
-    @Schema(description = "头像")
-    private String avatar;
-    @Schema(description = "昵称", example = "admin")
-    private String nickname;
-    @Schema(description ="是否启用")
-    private boolean enabled;
-    @Schema(description ="账户未过期")
-    private boolean accountNonExpired;
-    @Schema(description ="凭据未过期")
-    private boolean credentialsNonExpired;
-    @Schema(description ="账户未锁定")
-    private boolean accountNonLocked;
+  @ToString.Exclude @Schema private String salt;
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        Class<?> oEffectiveClass =
-            o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer()
-                .getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass =
-            this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer()
-                .getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass)
-            return false;
-        SysUser sysUser = (SysUser) o;
-        return getUid() != null && Objects.equals(getUid(), sysUser.getUid());
-    }
+  @Schema(description = "电话", example = "1231")
+  private String phone;
 
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy
-            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
-            : getClass().hashCode();
-    }
+  @Schema(description = "邮箱")
+  private String email;
+
+  @Schema(description = "头像")
+  private String avatar;
+
+  @Schema(description = "昵称", example = "admin")
+  private String nickname;
+
+  @Schema(description = "是否启用")
+  private boolean enabled;
+
+  @Schema(description = "账户未过期")
+  private boolean accountNonExpired;
+
+  @Schema(description = "凭据未过期")
+  private boolean credentialsNonExpired;
+
+  @Schema(description = "账户未锁定")
+  private boolean accountNonLocked;
+
 }

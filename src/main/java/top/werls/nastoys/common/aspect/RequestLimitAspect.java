@@ -26,8 +26,13 @@ import java.lang.reflect.Method;
 @Slf4j
 public class RequestLimitAspect {
 
-  @Autowired
-  private HttpServletRequest request;
+
+  private final HttpServletRequest request;
+
+  public RequestLimitAspect(HttpServletRequest request) {
+    this.request = request;
+  }
+
   private static final Cache<Object, Integer> cache = new SimpleCache<>(1000, 60 * 1000);
 
   @Pointcut(value = "@annotation(top.werls.nastoys.common.annotation.RequestLimit)")
@@ -41,17 +46,21 @@ public class RequestLimitAspect {
     RequestLimit requestLimit = method.getAnnotation(RequestLimit.class);
     int frequency = requestLimit.frequency();
     int minute = requestLimit.minute();
-    var sessionId = request.getRequestedSessionId();
-    if (cache.containsKey(sessionId)) {
-      var limit = cache.get(sessionId) + 1;
-      cache.replace(sessionId, limit, (long) minute * 60 * 1000);
+    String key = request.getRemoteAddr();
+    if (key == null) {
+      throw new RuntimeException("无法获取客户端IP，无法进行限流");
+    }
+    Integer current = cache.get(key);
+    if (current != null) {
+      int limit = current + 1;
+      cache.replace(key, limit, (long) minute * 60 * 1000);
       if (limit <= frequency) {
         return joinPoint.proceed();
       } else {
-        throw new RuntimeException("访问过于频繁，请稍后在尝试");
+        throw new RuntimeException("访问过于频繁，请稍后再尝试");
       }
     } else {
-      cache.put(sessionId, 1, (long) minute * 60 * 1000);
+      cache.put(key, 1, (long) minute * 60 * 1000);
       return joinPoint.proceed();
     }
   }

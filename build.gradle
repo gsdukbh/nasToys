@@ -37,6 +37,8 @@ dependencies {
 
     // spring doc https://springdoc.org
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9"
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
     def jwtVersion = '0.12.5'
     // jwt

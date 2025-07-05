@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 内容片段 -->
+<div th:fragment="content">
+  <div id="device-app">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h2">设备列表</h1>
+      <!-- 修改: 调用 openModal 方法进入“添加”模式 -->
+      <button class="btn btn-primary" @click="openModal(false)">
+        <i class="bi bi-plus-circle me-1"></i> 添加设备
+      </button>
+    </header>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div v-if="error" class="alert alert-danger">{{ error }}</div>
+        <div v-if="isLoading" class="text-center p-5">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        <table v-if="!isLoading && !error" class="table table-hover align-middle">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>设备名称</th>
+            <th>Mac</th>
+            <th>网段</th>
+            <th>状态</th>
+            <th>最后上线时间</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="device in devices" :key="device.id">
+            <td><code>{{ device.id }}</code></td>
+            <td>{{ device.name }}</td>
+            <td>{{ device.mac }}</td>
+            <td>{{ device.broadcastIp }}</td>
+            <td>
+                                <span class="badge" :class="device.status === 'ONLINE' ? 'bg-success' : 'bg-secondary'">
+                                    {{ device.status }}
+                                </span>
+            </td>
+            <td>{{ device.lastSeen }}</td>
+            <td>
+              <!-- 修改: 调用 openModal 方法并传入设备数据，进入“编辑”模式 -->
+              <button class="btn btn-sm btn-outline-secondary" @click="openModal(true, device)">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 添加/修改设备弹窗 (Modal) -->
+    <div class="modal fade" id="deviceModal" tabindex="-1" aria-labelledby="deviceModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <!-- 修改: 动态标题 -->
+            <h5 class="modal-title" id="deviceModalLabel">{{ isEditMode ? '修改设备信息' : '添加新设备' }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="submitDevice">
+              <div class="mb-3">
+                <label for="deviceId" class="form-label">设备 Mac</label>
+                <!-- 修改: 编辑模式下只读 -->
+                <input type="text" class="form-control" id="deviceId" v-model="editableDevice.id" required :readonly="isEditMode">
+              </div>
+              <div class="mb-3">
+                <label for="deviceMac" class="form-label">设备 Mac</label>
+                <!-- 修改: 编辑模式下只读 -->
+                <input type="text" class="form-control" id="deviceMac" v-model="editableDevice.mac" required :readonly="isEditMode">
+              </div>
+              <div class="mb-3">
+                <label for="deviceName" class="form-label">设备名称</label>
+                <input type="text" class="form-control" id="deviceName" v-model="editableDevice.name" required>
+              </div>              <div class="mb-3">
+                <label for="broadcastIp" class="form-label">设备网段</label>
+                <input type="text" class="form-control" id="broadcastIp" v-model="editableDevice.broadcastIp" required>
+              </div>
+              <div class="modal-footer pb-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <!-- 修改: 动态按钮文本 -->
+                <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                  {{ isSubmitting ? '提交中...' : (isEditMode ? '确认修改' : '确认添加') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 脚本片段 -->
+<th:block th:fragment="scripts">
+  <script>
+    const { createApp, ref, onMounted } = Vue;
+    createApp({
+      setup() {
+        const devices = ref([]);
+        const isLoading = ref(true);
+        const error = ref(null);
+        const isSubmitting = ref(false);
+        const isEditMode = ref(false);
+        const editableDevice = ref({ id: '', name: '', mac: '', broadcastIp: '' });
+        let deviceModal = null;
+
+        const fetchDevices = async () => {
+          isLoading.value = true;
+          try {
+            const response = await fetch('/api/machine/machines');
+            if (!response.ok) throw new Error('获取设备数据失败');
+            let s = await response.json()
+            devices.value = s.data;
+          } catch (e) {
+            error.value = e.message;
+          } finally {
+            isLoading.value = false;
+          }
+        };
+
+        // 统一的弹窗打开方法
+        const openModal = (editMode = false, device = null) => {
+          isEditMode.value = editMode;
+          if (editMode && device) {
+            // 编辑模式: 复制设备数据到表单
+            editableDevice.value = { ...device };
+          } else {
+            // 添加模式: 重置表单
+            editableDevice.value = { name: '', mac: '', broadcastIp: '' };
+          }
+          if (deviceModal) {
+            deviceModal.show();
+          }
+        };
+
+        // 统一的表单提交方法
+        const submitDevice = async () => {
+          isSubmitting.value = true;
+          const url = isEditMode.value ? `/api/machine/updateMachine` : '/api/machine/addMachine';
+          const method =  'POST';
+
+          try {
+            const response = await fetch(url, {
+              method: method,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(editableDevice.value)
+            });
+            if (!response.ok) throw new Error(isEditMode.value ? '修改设备失败' : '添加设备失败');
+
+            await fetchDevices(); // 成功后刷新列表
+            if (deviceModal) deviceModal.hide(); // 关闭弹窗
+
+          } catch(e) {
+            alert(e.message);
+          } finally {
+            isSubmitting.value = false;
+          }
+        };
+
+        onMounted(() => {
+          fetchDevices();
+          const modalElement = document.getElementById('deviceModal');
+          if (modalElement) {
+            deviceModal = new bootstrap.Modal(modalElement);
+          }
+        });
+
+        return { devices, isLoading, error, editableDevice, isSubmitting, isEditMode, openModal, submitDevice };
+      }
+    }).mount('#device-app');
+  </script>
+</th:block>
+
+</body>
+</html>

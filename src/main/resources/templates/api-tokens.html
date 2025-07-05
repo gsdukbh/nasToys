@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 内容片段 -->
+<div th:fragment="content">
+  <div id="token-app">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h2">API Tokens</h1>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateTokenModal">
+        <i class="bi bi-plus-circle me-1"></i> 生成新 Token
+      </button>
+    </header>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div v-if="isLoading" class="text-center p-5"><div class="spinner-border" role="status"></div></div>
+        <div v-if="tokens.length === 0 && !isLoading" class="text-center p-4 text-muted">暂无 API Tokens。</div>
+        <table v-if="tokens.length > 0" class="table align-middle">
+          <thead>
+          <tr>
+            <th>名称</th>
+            <th>Token 前缀</th>
+            <th>创建日期</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="token in tokens" :key="token.id">
+            <td><strong>{{ token.name }}</strong></td>
+            <td><code>{{ token.prefix }}...</code></td>
+            <td>{{ formatDate(token.createdAt) }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger" @click="confirmRevoke(token)">
+                <i class="bi bi-trash"></i> 撤销
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 生成 Token 弹窗 -->
+    <div class="modal fade" id="generateTokenModal" tabindex="-1">
+      <div class="modal-dialog">
+        <form class="modal-content" @submit.prevent="generateToken">
+          <div class="modal-header"><h5 class="modal-title">生成新 Token</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="tokenName" class="form-label">Token 名称</label>
+              <input type="text" class="form-control" id="tokenName" v-model="newTokenName" placeholder="例如：我的测试应用" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">生成</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 显示新 Token 弹窗 -->
+    <div class="modal fade" id="showTokenModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">新 Token 已生成</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <p>请复制您的新 API token。出于安全考虑，您将无法再次看到它。</p>
+            <div class="input-group">
+              <input type="text" class="form-control" :value="generatedToken" readonly>
+              <button class="btn btn-outline-secondary" @click="copyToken"><i class="bi bi-clipboard"></i></button>
+            </div>
+            <div v-if="copied" class="text-success text-center mt-2">已复制！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 脚本片段 -->
+<th:block th:fragment="scripts">
+  <script>
+    const { createApp, ref, onMounted } = Vue;
+    createApp({
+      setup() {
+        const tokens = ref([]);
+        const isLoading = ref(true);
+        const isSubmitting = ref(false);
+        const newTokenName = ref('');
+        const generatedToken = ref('');
+        const copied = ref(false);
+        let generateModal, showModal;
+
+        const formatDate = (dateString) => {
+          if (!dateString) return '';
+          return new Date(dateString).toLocaleString('zh-CN');
+        };
+
+        const fetchTokens = async () => {
+          isLoading.value = true;
+          const response = await fetch('/api/tokens/list');
+          let s =  await response.json()
+          tokens.value = s.data;
+          isLoading.value = false;
+        };
+
+        const generateToken = async () => {
+          isSubmitting.value = true;
+          const response = await fetch('/api/tokens/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: newTokenName.value
+          });
+          const s = await response.json();
+          generatedToken.value = s.data;
+          isSubmitting.value = false;
+          newTokenName.value = '';
+          generateModal.hide();
+          showModal.show();
+          await fetchTokens();
+        };
+
+        const confirmRevoke = async (token) => {
+          if (confirm(`您确定要撤销 token "${token.name}" 吗？此操作无法撤销。`)) {
+            await fetch(`/api/tokens/revoke/${token.id}`, { method: 'DELETE' });
+            await fetchTokens();
+          }
+        };
+
+        const copyToken = () => {
+          navigator.clipboard.writeText(generatedToken.value).then(() => {
+            copied.value = true;
+            setTimeout(() => copied.value = false, 2000);
+          });
+        };
+
+        onMounted(() => {
+          fetchTokens();
+          generateModal = new bootstrap.Modal(document.getElementById('generateTokenModal'));
+          showModal = new bootstrap.Modal(document.getElementById('showTokenModal'));
+        });
+
+        return { tokens, isLoading, isSubmitting, newTokenName, generatedToken, copied, generateToken, confirmRevoke, copyToken, formatDate };
+      }
+    }).mount('#token-app');
+  </script>
+</th:block>
+
+</body>
+</html>

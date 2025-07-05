@@ -17,7 +17,7 @@ import top.werls.nastoys.system.repository.SysUserRepository;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private SysUserRepository userRepository;
+  private final SysUserRepository userRepository;
 
   public UserDetailsServiceImpl(SysUserRepository sysUserRepository) {
     this.userRepository = sysUserRepository;
@@ -40,6 +40,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     List<GrantedAuthority> authorities = new ArrayList<>();
     authorities.add(() -> "ROLE_ADMIN");
     var u =   userRepository.findByUsername(username);
+
+    if (u == null) {
+      log.warn("User not found: {}", username);
+      throw new UsernameNotFoundException("User not found: " + username);
+    }
     return  new User(username,u.getPassword(),authorities);
 /*        User user =
         new User(username, "$2a$10$ff5LAedpha10wc77nKjtc.J0FlkP4mAMMVvkVQV1H57Y7p0ekqo8e", true,

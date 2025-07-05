@@ -8,14 +8,20 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
-@Data
+@Getter
+@Setter
 @Schema(name = "LoginParam", description = "登录参数")
 public class LoginParam implements Serializable {
 
   @Serial
   private static final long serialVersionUID = -1L;
+
+  private Long uid;
+
   @Schema(description = "用户名", requiredMode = RequiredMode.REQUIRED, example = "admin")
   @NotBlank(message = "用户名不能为空")
   private String username;

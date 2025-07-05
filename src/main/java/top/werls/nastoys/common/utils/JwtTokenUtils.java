@@ -17,15 +17,19 @@ import java.util.UUID;
 @Component
 public class JwtTokenUtils {
 
-  private static final String CLAIM_KEY_USERNAME = "username";
-  private static final String CLAIM_KEY_TIME = "time";
+  private static final String CLAIM_KEY_USERNAME = "u";
+  private static final String CLAIM_KEY_TIME = "t";
   @Resource
   private ConfigProperties configProperties;
+
+  private String generateShortId() {
+    return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+  }
 
   public String generateToken(Map<String, Object> claims) {
     return Jwts.builder()
         .claims(claims)
-        .id(UUID.randomUUID().toString())
+        .id(generateShortId())
         .issuedAt(new Date())
         .expiration(getExpirationDate())
         .signWith(configProperties.getJwt().getPrivateKey())
@@ -35,7 +39,7 @@ public class JwtTokenUtils {
   public String generateToken(Map<String, Object> claims, Date time) {
     return Jwts.builder()
         .claims(claims)
-        .id(UUID.randomUUID().toString())
+        .id(generateShortId())
         .issuedAt(new Date())
         .expiration(time)
         .signWith(configProperties.getJwt().getPrivateKey())
@@ -46,7 +50,7 @@ public class JwtTokenUtils {
     return Jwts.builder()
         .claims(claims)
         .issuedAt(new Date())
-        .id(UUID.randomUUID().toString())
+        .id(generateShortId())
         .signWith(configProperties.getJwt().getPrivateKey())
         .compact();
   }

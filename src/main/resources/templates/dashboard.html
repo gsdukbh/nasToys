@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- =============================================================== -->
+<!-- 1. 内容片段: 这部分内容会被插入到 layout.html 的主内容区域 -->
+<!-- =============================================================== -->
+<div th:fragment="content">
+  <!-- 头部 -->
+  <header class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">服务器仪表盘</h1>
+    <div v-if="!error" class="badge bg-success rounded-pill fs-6">● 在线</div>
+    <div v-if="error" class="badge bg-danger rounded-pill fs-6">● 连接失败</div>
+  </header>
+
+  <!-- 错误提示 -->
+  <div v-if="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- 数据网格 -->
+  <div v-if="!error" id="dashboard-app" class="row g-4">
+    <!-- CPU, 内存, 磁盘, 系统信息卡片... (代码与之前相同) -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card shadow-sm h-100"><div class="card-body"><h6 class="card-subtitle mb-2 text-muted">CPU 使用率</h6><p class="card-title card-value fw-bold">{{ stats.cpuUsage }}%</p><div class="progress" style="height: 8px;"><div class="progress-bar" role="progressbar" :style="{ width: stats.cpuUsage + '%' }"></div></div></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card shadow-sm h-100"><div class="card-body"><h6 class="card-subtitle mb-2 text-muted">内存使用情况</h6><p class="card-title card-value fw-bold">{{ stats.memoryUsed }} / {{ stats.totalMemory }} GB</p><div class="progress" style="height: 8px;"><div class="progress-bar" role="progressbar" :style="{ width: (stats.memoryUsed / stats.totalMemory * 100) + '%' }"></div></div></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card shadow-sm h-100"><div class="card-body"><h6 class="card-subtitle mb-2 text-muted">磁盘使用情况</h6><p class="card-title card-value fw-bold">{{ stats.diskUsed }} / {{ stats.totalDisk }} GB</p><div class="progress" style="height: 8px;"><div class="progress-bar" role="progressbar" :style="{ width: (stats.diskUsed / stats.totalDisk * 100) + '%' }"></div></div></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card shadow-sm h-100"><div class="card-body"><h6 class="card-subtitle mb-2 text-muted">系统信息</h6><ul class="list-group list-group-flush mt-3"><li class="list-group-item d-flex justify-content-between px-0"><span>操作系统</span> <strong>{{ stats.osName }}</strong></li><li class="list-group-item d-flex justify-content-between px-0"><span>架构</span> <strong>{{ stats.osArch }}</strong></li><li class="list-group-item d-flex justify-content-between px-0"><span>Java 版本</span> <strong>{{ stats.javaVersion }}</strong></li><li class="list-group-item d-flex justify-content-between px-0"><span>JVM 厂商</span> <strong>{{ stats.jvmVendor }}</strong></li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================== -->
+<!-- 2. 脚本片段: 这部分JS代码会被插入到 layout.html 的底部 -->
+<!-- =============================================================== -->
+<th:block th:fragment="scripts">
+  <script>
+    const { createApp, ref, onMounted, onUnmounted } = Vue;
+    createApp({
+      setup() {
+        const stats = ref({ cpuUsage: 0, memoryUsed: 0, totalMemory: 0, diskUsed: 0, totalDisk: 0, osName: '加载中...', osArch: '加载中...', javaVersion: '加载中...', jvmVendor: '加载中...' });
+        const error = ref(null);
+        let intervalId = null;
+        const fetchServerStats = async () => {
+          try {
+            const response = await fetch('/api/server/stats');
+            if (!response.ok) throw new Error('无法从服务器获取数据。');
+            stats.value = await response.json();
+            error.value = null;
+          } catch (e) {
+            error.value = '无法连接到服务器，请检查后端服务是否正常运行。';
+            if (intervalId) clearInterval(intervalId);
+          }
+        };
+        onMounted(() => {
+          fetchServerStats();
+          intervalId = setInterval(fetchServerStats, 3000);
+        });
+        onUnmounted(() => {
+          if (intervalId) clearInterval(intervalId);
+        });
+        return { stats, error };
+      }
+    }).mount('#dashboard-app');
+  </script>
+</th:block>
+
+</body>
+</html>

@@ -3,6 +3,7 @@ package top.werls.nastoys.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import jakarta.annotation.Resource;
+import java.text.Normalizer.Form;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest.EndpointRequestMatcher;
@@ -28,16 +29,22 @@ import top.werls.nastoys.system.service.impl.UserDetailsServiceImpl;
 @EnableMethodSecurity()
 public class SecurityConfig {
 
-  @Resource
-  private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+  private final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
-  @Resource
-  private CustomizeAuthEntryPoint authEntryPoint;
-  @Resource
-  private CustomizeAccessDeniedHandler accessDeniedHandler;
+  private final CustomizeAuthEntryPoint authEntryPoint;
+  private final CustomizeAccessDeniedHandler accessDeniedHandler;
 
-  @Resource
   public UserDetailsServiceImpl userDetailsService;
+
+  public SecurityConfig(CustomizeAuthEntryPoint authEntryPoint,
+      CustomizeAccessDeniedHandler accessDeniedHandler,
+      JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter,
+      UserDetailsServiceImpl userDetailsService) {
+    this.authEntryPoint = authEntryPoint;
+    this.accessDeniedHandler = accessDeniedHandler;
+    this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+    this.userDetailsService = userDetailsService;
+  }
 
   @Value("${env.isEnableSwagger}")
   private boolean isEnableSwagger;
@@ -60,23 +67,26 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain web(HttpSecurity http) throws Exception {
     if (isEnableSwagger) {
-      http.authorizeHttpRequests((requests) ->
-          requests.requestMatchers("/swagger-ui.html", "/webjars/**", "/swagger-ui*/**", "/v3/**")
-              .permitAll());
+      http.authorizeHttpRequests(
+          (requests) ->
+              requests
+                  .requestMatchers("/swagger-ui.html", "/webjars/**", "/swagger-ui*/**", "/v3/**")
+                  .permitAll());
     }
     http.cors(withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher(EndpointRequest.toAnyEndpoint())
         .authorizeHttpRequests(
-            (requests) -> requests.requestMatchers("/login").permitAll().anyRequest()
-                .authenticated())
-        .exceptionHandling((authorizeRequests) -> authorizeRequests
-            .accessDeniedHandler(accessDeniedHandler)
-            .authenticationEntryPoint(authEntryPoint)
-        )
+            (requests) ->
+                requests.requestMatchers("/login","/api/login","/").permitAll().anyRequest().authenticated())
+        .exceptionHandling(
+            (authorizeRequests) ->
+                authorizeRequests
+                    .accessDeniedHandler(accessDeniedHandler)
+                    .authenticationEntryPoint(authEntryPoint))
         .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
-        .sessionManagement((sessionManagement) -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
+        .sessionManagement(
+            (sessionManagement) ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 
     return http.build();
   }
