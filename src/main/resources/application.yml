@@ -35,7 +35,7 @@ springdoc:
 env:
   appName: 'spring-boot-template'
   version: '0.0.1'
-  isEnableSwagger: true
+  isEnableSwagger: false
   libs: classpath:/libs
   jwt:
     expire: 30
