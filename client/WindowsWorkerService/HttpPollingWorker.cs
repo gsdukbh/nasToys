@@ -84,7 +84,7 @@ public class HttpPollingWorker : BackgroundService
                             // 执行关机操作
                             _logger.LogInformation("执行关机操作...");
                             // 这里可以调用系统命令来关机，例如：
-                            // System.Diagnostics.Process.Start("shutdown", "/s /t 0");
+                             System.Diagnostics.Process.Start("shutdown", "/s /t 0");
                         }
                     }
                     else
