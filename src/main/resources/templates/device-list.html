@@ -68,8 +68,8 @@
           </div>
           <div class="modal-body">
             <form @submit.prevent="submitDevice">
-              <div class="mb-3">
-                <label for="deviceId" class="form-label">设备 Mac</label>
+              <div class="mb-3" v-if="isEditMode">
+                <label for="deviceId" class="form-label">设备 ID</label>
                 <!-- 修改: 编辑模式下只读 -->
                 <input type="text" class="form-control" id="deviceId" v-model="editableDevice.id" required :readonly="isEditMode">
               </div>
