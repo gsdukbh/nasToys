@@ -46,6 +46,7 @@ public class MachineController {
   // 添加设备
   @PostMapping("/addMachine")
   public ResultData<String> addMachine(@Valid @RequestBody Machine machine) {
+    machine.setMac(machine.getMac().toLowerCase());
     machineRepository.save(machine);
     return ResultData.success("设备已添加: " + machine.getName());
   }
@@ -53,6 +54,7 @@ public class MachineController {
   @Operation (summary = "更新机器信息", description = "更新指定机器的信息")
   @PostMapping("/updateMachine")
   public ResultData<Machine>  updateMachine( @Valid @RequestBody Machine machine) {
+    machine.setMac(machine.getMac().toLowerCase());
     Machine updatedMachine = machineRepository.save(machine);
     return ResultData.success(updatedMachine);
   }

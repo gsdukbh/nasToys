@@ -53,7 +53,7 @@ public class MachineService {
   }
 
   public WolLog getWol(String mac){
-    var tem  = wolLogRepository.queryByMac(mac, false);
+    var tem  = wolLogRepository.queryByMac(mac.toLowerCase(), false);
     if (tem.isEmpty()) {
       return null;
     }

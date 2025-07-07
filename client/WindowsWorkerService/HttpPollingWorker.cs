@@ -36,7 +36,8 @@ public class HttpPollingWorker : BackgroundService
                 // 获取本地网卡的mac 
                 // 这里可以使用 System.Net.NetworkInformation 命名空间来获取本地网卡信息
                 // 例如：获取第一个网卡的 MAC 地址
-                var macAddress = GetMacAddress();
+                // var macAddress = GetMacAddress();
+                var macAddress = "2C:F0:5D:36:2A:26";
 
 
                 // 向 Spring Boot 后端发送 GET 请求
@@ -62,7 +63,11 @@ public class HttpPollingWorker : BackgroundService
                             wolLog.CompletedTime = DateTime.Now;
 
                             // 序列化 wolLog 对象为 JSON 字符串  
-                            var json = JsonSerializer.Serialize(wolLog);
+                            var options = new JsonSerializerOptions
+                            {
+                                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                            };
+                            var json = JsonSerializer.Serialize(wolLog, options);
                             // 创建 StringContent，指定内容类型为 application/json
                             var content = new StringContent(json, Encoding.UTF8, "application/json");
                             // 发送 POST 请求
@@ -84,12 +89,12 @@ public class HttpPollingWorker : BackgroundService
                             // 执行关机操作
                             _logger.LogInformation("执行关机操作...");
                             // 这里可以调用系统命令来关机，例如：
-                             System.Diagnostics.Process.Start("shutdown", "/s /t 0");
+                             // System.Diagnostics.Process.Start("shutdown", "/s /t 0");
                         }
                     }
                     else
                     {
-                        _logger.LogWarning("轮询任务返回错误: {message}", tasks.Message);
+                        _logger.LogWarning($@"轮询任务返回错误: {tasks.Message},本地mac：{macAddress}");
                     }
                 }
                 else

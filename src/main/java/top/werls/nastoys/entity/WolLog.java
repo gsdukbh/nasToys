@@ -21,6 +21,7 @@ import lombok.Setter;
 @Entity
 public class WolLog {
 
+
   @Id
   @GeneratedValue( strategy = jakarta.persistence.GenerationType.IDENTITY)
   private Long id;
