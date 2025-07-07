@@ -28,10 +28,13 @@ configurations {
 repositories {
     mavenCentral()
 }
+bootBuildImage{
 
+}
 jib {
     from {
-        image = 'amazoncorretto:21'
+//        image = 'amazoncorretto:21'
+        image = 'gcr.io/distroless/java21-debian12'
         platforms {
             platform {
                 architecture = 'amd64'
