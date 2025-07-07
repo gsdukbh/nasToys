@@ -20,7 +20,11 @@ spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:db.sqlite
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health
 logging:
   config: classpath:logback-spring-dev.xml
   file:
@@ -34,7 +38,6 @@ springdoc:
     filter: true
 env:
   appName: 'nastoys'
-  version: '@project.version@'
   isEnableSwagger: false
   libs: classpath:/libs
   jwt:

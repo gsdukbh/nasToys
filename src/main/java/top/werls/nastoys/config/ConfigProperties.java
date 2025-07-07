@@ -20,8 +20,6 @@ import java.security.interfaces.RSAPublicKey;
 public class ConfigProperties {
   /** app mingc */
   private String appName = "template";
-
-  private String version = "0.0.1";
   private boolean isEnableSwagger = false;
   private FileProperties fileConfig = new FileProperties();
   private JwtProperties jwt = new JwtProperties();

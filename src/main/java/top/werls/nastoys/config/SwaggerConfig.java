@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +16,11 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
 
-  @Value("${env.version}")
-  private String version;
+  private final BuildProperties buildProperties;
+
+  public SwaggerConfig(BuildProperties buildProperties) {
+    this.buildProperties = buildProperties;
+  }
 
   public static final String TOKEN_HEADER = "Authorization";
 
@@ -25,9 +29,9 @@ public class SwaggerConfig {
     return new OpenAPI()
         .components(components())
         .info(new Info()
-            .title("api")
-            .description("api")
-            .version(version));
+            .title(buildProperties.getName()+"api")
+            .description("api msg")
+            .version(buildProperties.getVersion()));
   }
 
   private Components components() {

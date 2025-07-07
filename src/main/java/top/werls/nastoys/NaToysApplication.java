@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.info.BuildProperties;
 
 
 /**
@@ -18,12 +19,16 @@ public class NaToysApplication {
     var context = SpringApplication.run(NaToysApplication.class, args);
     var env = context.getEnvironment();
     var port = env.getProperty("server.port");
-    log.warn("""
-        
+    BuildProperties buildProperties = context.getBean(BuildProperties.class);
+    log.info("""
         ==============================================
+        = App name : {}
+        = App version : {}
+        = App build time : {}
         = App run success !!
         = Swagger doc : http://localhost:{}/swagger-ui.html
         ==============================================
-        """, port);
+        """, buildProperties.getName(), buildProperties.getVersion(),buildProperties.getTime(), port);
+
   }
 }

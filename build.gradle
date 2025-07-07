@@ -9,10 +9,8 @@ plugins {
 group = 'top.werls'
 version = '0.0.1-alpha'
 
-processResources {
-    filesMatching('application.yml') {
-        expand(project.properties)
-    }
+springBoot {
+    buildInfo()
 }
 
 java {
