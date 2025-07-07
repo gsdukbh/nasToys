@@ -45,7 +45,13 @@ jib {
         auth {
             username = System.getenv('DOCKER_USERNAME') ?: 'gsdukbh'
             // 从本地文件获取
-            password = System.getenv('DOCKER_PASSWORD') ?: new File('./DOCKER_PASSWORD').text
+            def p = ""
+            try {
+                p = new File('./DOCKER_PASSWORD').text
+            } catch (Exception e) {
+                println "DOCKER_PASSWORD file not found, using environment variable instead."
+            }
+            password = System.getenv('DOCKER_PASSWORD') ?: p
         }
     }
 

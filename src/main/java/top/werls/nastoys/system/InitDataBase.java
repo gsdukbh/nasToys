@@ -31,20 +31,25 @@ public class InitDataBase  implements ApplicationRunner {
   @Override
   public void run(ApplicationArguments args) throws Exception {
     log.debug("初始化用户信息 添加默认用户");
+    try {
+      String  u = System.getenv("APP_USERNAME") != null ? System.getenv("APP_USERNAME") : "admin";
+      String  p = System.getenv("APP_PASSWORD") != null ? System.getenv("APP_PASSWORD") : "admin";
+      var old =  sysUserRepository.findByUsername(u);
+      if (old != null) {
+        log.debug("用户 admin 已存在，跳过初始化");
+        return;
+      }
 
-    var old =  sysUserRepository.findByUsername("admin");
-    if (old != null) {
-      log.debug("用户 admin 已存在，跳过初始化");
-      return;
+      SysUser admin  =new SysUser();
+      admin.setUsername(u);
+      admin.setPassword(passwordEncoder.encode(p));
+      admin.setNickname("管理员");
+      admin.setEmail("root@werls.top");
+      sysUserRepository.save(admin);
+    } catch (Exception e) {
+      log.error("初始化用户信息失败", e);
+      throw new RuntimeException("初始化用户信息失败", e);
     }
-
-    SysUser admin  =new SysUser();
-    admin.setUsername("admin");
-    admin.setPassword(passwordEncoder.encode("admin"));
-    admin.setNickname("管理员");
-    admin.setEmail("root@werls.top");
-    sysUserRepository.save(admin);
-
 
   }
 
