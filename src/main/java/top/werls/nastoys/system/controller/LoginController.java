@@ -83,6 +83,22 @@ public class LoginController {
     return "login"; // 返回 templates/login.html
   }
 
+  @GetMapping("/login")
+  public String login(Model model,@AuthenticationPrincipal UserDetails userDetails) {
+    // 向页面传递数据
+    model.addAttribute("pageTitle", "我的应用 - 登录");
+    model.addAttribute("formTitle", "欢迎回来");
+    // 检查用户是否已登录
+
+    if (userDetails != null) {
+      // 如果用户已登录，重定向到仪表盘
+      return "redirect:/dashboard";
+    }
+
+    return "login"; // 返回 templates/login.html
+  }
+
+
   @GetMapping("/dashboard")
   public String dashboard(Model model) {
     model.addAttribute("pageTitle", "仪表盘");
