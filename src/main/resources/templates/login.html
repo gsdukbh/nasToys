@@ -36,12 +36,13 @@
     }
     .success { background-color: #d1fae5; color: #065f46; }
     .error { background-color: #fee2e2; color: #991b1b; }
+    [v-cloak] { display: none; }
   </style>
 </head>
 <body>
 
 <!-- 2. 这个 div 是 Vue 的“管辖区域” -->
-<div id="vue-login-app" class="container">
+<div id="vue-login-app" class="container" v-cloak>
   <h1 th:text="${formTitle}">用户登录</h1>
 
   <!-- 这个表单内的所有交互都由 Vue 处理 -->

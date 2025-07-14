@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'top.werls'
-version = '0.0.1-alpha'
+version = '0.0.1-bata'
 
 springBoot {
     buildInfo()
@@ -46,6 +46,7 @@ jib {
             }
         }
     }
+
     to {
         image = "gsdukbh/${project.name.toLowerCase()}"
         tags = ['latest', version]

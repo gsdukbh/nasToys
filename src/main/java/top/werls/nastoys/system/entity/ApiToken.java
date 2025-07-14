@@ -38,6 +38,9 @@ public class ApiToken implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUsedAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date exceededTime;
+
     @PrePersist
     protected void onCreate() {
         createdAt = new Date();

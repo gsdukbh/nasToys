@@ -10,13 +10,13 @@ spring:
     virtual:
       enabled: true
   jpa:
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:db.sqlite
