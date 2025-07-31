@@ -28,9 +28,13 @@ configurations {
 repositories {
     mavenCentral()
 }
-bootBuildImage{
 
+tasks.named('processResources') {
+    filesMatching(['**/application*.properties', '**/application*.yml']) {
+        expand(project.properties)
+    }
 }
+
 jib {
     from {
 //        image = 'amazoncorretto:21'
@@ -73,8 +77,10 @@ jib {
 }
 
 dependencies {
-
-
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5-fluent
+    implementation("org.apache.httpcomponents.client5:httpclient5-fluent:5.5")
+    // https://jsoup.org/
+    implementation 'org.jsoup:jsoup:1.21.1'
     implementation 'org.xerial:sqlite-jdbc:3.50.2.0'
 // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects
     implementation 'org.hibernate.orm:hibernate-community-dialects:7.0.4.Final'
@@ -87,8 +93,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
-    def jwtVersion = '0.12.5'
     // jwt
+    def jwtVersion = '0.12.5'
     implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
     implementation "io.jsonwebtoken:jjwt-impl:${jwtVersion}"
     implementation "io.jsonwebtoken:jjwt-gson:${jwtVersion}"

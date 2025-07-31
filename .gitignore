@@ -43,3 +43,5 @@ out/
 **/.vs/
 /DOCKER_PASSWORD
 /src/main/resources/application-dev.properties
+
+log

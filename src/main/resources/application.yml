@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   application:
-    name: ${env.appName}
+    name: \${env.appName}
   messages:
     basename: i18n
     encoding: UTF-8
@@ -37,7 +37,7 @@ springdoc:
   swagger-ui:
     filter: true
 env:
-  appName: 'nastoys'
+  appName: "${name}"
   isEnableSwagger: false
   libs: classpath:/libs
   jwt:
