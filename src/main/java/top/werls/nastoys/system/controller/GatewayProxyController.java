@@ -48,44 +48,45 @@ import java.util.Set;
 public class GatewayProxyController {
 
   // 【核心】这是我们将在客户端注入的拦截脚本
-  private static final String INTERCEPTOR_SCRIPT =
-      "(function() {" +
-          "    'use strict';" +
-          "    const PROXY_PREFIX = '/proxy?url=';" +
-          "    const originalFetch = window.fetch;" +
-          "    const originalXhrOpen = window.XMLHttpRequest.prototype.open;" +
-          "" +
-          "    function getAbsoluteUrl(url) {" +
-          "        return new URL(url, window.location.href).toString();" +
-          "    }" +
-          "" +
-          "    function rewriteUrl(originalUrl) {" +
-          "        if (typeof originalUrl !== 'string' || originalUrl.startsWith(PROXY_PREFIX) || originalUrl.startsWith('data:')) {" +
-          "            return originalUrl;" +
-          "        }" +
-          "        return PROXY_PREFIX + getAbsoluteUrl(originalUrl);" +
-          "    }" +
-          "" +
-          "    window.fetch = function(input, init) {" +
-          "        if (input instanceof Request) {" +
-          "            const newUrl = rewriteUrl(input.url);" +
-          "            const newRequest = new Request(newUrl, {" +
-          "                ...input," +
-          "                headers: input.headers," +
-          "                referrer: document.location.href" +
-          "            });" +
-          "            return originalFetch.call(this, newRequest, init);" +
-          "        } else {" +
-          "            const newUrl = rewriteUrl(input);" +
-          "            return originalFetch.call(this, newUrl, init);" +
-          "        }" +
-          "    };" +
-          "" +
-          "    window.XMLHttpRequest.prototype.open = function(method, url, async, user, password) {" +
-          "        const newUrl = rewriteUrl(url);" +
-          "        return originalXhrOpen.call(this, method, newUrl, async, user, password);" +
-          "    };" +
-          "})();";
+  private static final String INTERCEPTOR_SCRIPT = """
+      (function() {
+          'use strict';
+          const PROXY_PREFIX = '/proxy?url=';
+          const originalFetch = window.fetch;
+          const originalXhrOpen = window.XMLHttpRequest.prototype.open;
+          
+          function getAbsoluteUrl(url) {
+              return new URL(url, window.location.href).toString();
+          }
+          
+          function rewriteUrl(originalUrl) {
+              if (typeof originalUrl !== 'string' || originalUrl.startsWith(PROXY_PREFIX) || originalUrl.startsWith('data:')) {
+                  return originalUrl;
+              }
+              return PROXY_PREFIX + getAbsoluteUrl(originalUrl);
+          }
+          
+          window.fetch = function(input, init) {
+              if (input instanceof Request) {
+                  const newUrl = rewriteUrl(input.url);
+                  const newRequest = new Request(newUrl, {
+                      ...input,
+                      headers: input.headers,
+                      referrer: document.location.href
+                  });
+                  return originalFetch.call(this, newRequest, init);
+              } else {
+                  const newUrl = rewriteUrl(input);
+                  return originalFetch.call(this, newUrl, init);
+              }
+          };
+          
+          window.XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+              const newUrl = rewriteUrl(url);
+              return originalXhrOpen.call(this, method, newUrl, async, user, password);
+          };
+      })();
+      """;
 
   @RequestMapping("/proxy")
   public void proxyRequest(@RequestParam String url, HttpServletRequest request, HttpServletResponse response, @RequestBody(required = false) byte[] requestBody) {
