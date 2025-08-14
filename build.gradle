@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'top.werls'
-version = '0.0.1-bata'
+version = '0.0.1'
 
 springBoot {
     buildInfo()
@@ -70,7 +70,7 @@ jib {
     container {
         creationTime = 'USE_CURRENT_TIMESTAMP'
         ports = ['8080']
-        volumes = ['/app/log','/app/db.sqlite']
+        volumes = ['/app/data','/app/data/db.sqlite']
         workingDirectory= '/app'
         environment = [JAVA_TOOL_OPTIONS: '-XX:+UseContainerSupport -XX:MaxRAMPercentage=80.0']
     }
