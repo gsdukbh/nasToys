@@ -1,6 +1,7 @@
 package top.werls.nastoys.system.service;
 
 
+import java.util.Optional;
 import top.werls.nastoys.system.dto.param.LoginParam;
 import top.werls.nastoys.system.dto.vo.LoginVo;
 import top.werls.nastoys.system.entity.SysUser;
@@ -24,6 +25,8 @@ public interface SysUserService {
     String changePassword(SysUser user);
 
     SysUser findByUsername(String username);
+
+    Optional<SysUser> findById(Long id);
 
 
 }

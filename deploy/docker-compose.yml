@@ -2,6 +2,7 @@ services:
   app:
     image: gsdukbh/nastoys:latest
     container_name: nastoys
+    restart: always
     ports:
         - '8080:8080'
     environment:

@@ -1,6 +1,5 @@
 package top.werls.nastoys.system.Security;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,10 +18,9 @@ import top.werls.nastoys.common.utils.JwtTokenUtils;
 import top.werls.nastoys.config.ConfigProperties;
 import top.werls.nastoys.system.service.ApiTokenService;
 
-
 import java.io.IOException;
 import java.util.Arrays;
-
+import top.werls.nastoys.system.service.SysUserService;
 
 /**
  * @author leee
@@ -39,35 +37,45 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
   private final ApiTokenService apiTokenService;
 
-  public JwtAuthenticationTokenFilter(ConfigProperties configProperties, JwtTokenUtils tokenUtils,
-      UserDetailsService userDetailsService, ApiTokenService apiTokenService) {
+  private final SysUserService sysUserService;
+
+  public JwtAuthenticationTokenFilter(
+      ConfigProperties configProperties,
+      JwtTokenUtils tokenUtils,
+      UserDetailsService userDetailsService,
+      ApiTokenService apiTokenService,
+      SysUserService sysUserService) {
     this.tokenPrefix = configProperties.getJwt().getTokenPrefix();
     this.tokenUtils = tokenUtils;
     this.userDetailsService = userDetailsService;
     this.apiTokenService = apiTokenService;
+    this.sysUserService = sysUserService;
   }
 
   /**
    * Same contract as for {@code doFilter}, but guaranteed to be just invoked once per request
    * within a single request thread. See {@link #shouldNotFilterAsyncDispatch()} for details.
-   * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
-   * default ServletRequest and ServletResponse ones.
+   *
+   * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the default
+   * ServletRequest and ServletResponse ones.
    *
    * @param request
    * @param response
    * @param filterChain
    */
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
 
     String authToken = null;
     if (request.getCookies() != null) {
-      authToken = Arrays.stream(request.getCookies())
-          .filter(cookie -> "token".equals(cookie.getName()))
-          .map(Cookie::getValue)
-          .findFirst()
-          .orElse(null);
+      authToken =
+          Arrays.stream(request.getCookies())
+              .filter(cookie -> "token".equals(cookie.getName()))
+              .map(Cookie::getValue)
+              .findFirst()
+              .orElse(null);
     }
 
     if (authToken == null) {
@@ -76,7 +84,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         authToken = authHeader.substring(tokenPrefix.length()).trim();
       }
     }
-
 
     if (authToken != null) {
       String username = null;
@@ -88,21 +95,31 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-        var apiToken = apiTokenService.findByToken(authToken);
-        if (apiToken.isPresent() && !apiToken.get().isRevoked()) {
-          UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-              userDetails, null, userDetails.getAuthorities());
-          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-          SecurityContextHolder.getContext().setAuthentication(authentication);
-          log.info("Authenticated user: {} with API token", username);
-        } else if (tokenUtils.validateToken(authToken, userDetails.getUsername())) {
+        if (tokenUtils.validateToken(authToken, userDetails.getUsername())) {
           UsernamePasswordAuthenticationToken authentication =
-              new UsernamePasswordAuthenticationToken(userDetails, null,
-                  userDetails.getAuthorities());
+              new UsernamePasswordAuthenticationToken(
+                  userDetails, null, userDetails.getAuthorities());
           authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(authentication);
           log.info("Authenticated user: {}", username);
+        }
+      } else {
+
+        var apiToken = apiTokenService.findByToken(authToken);
+        if (apiToken.isPresent()) {
+          Long uid = apiToken.get().getUid();
+          var u = sysUserService.findById(uid);
+          u.ifPresent(
+              user -> {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+                UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("Authenticated user: {} with API token", user.getUsername());
+              });
         }
       }
     }

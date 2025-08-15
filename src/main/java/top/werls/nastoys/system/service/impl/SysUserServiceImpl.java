@@ -1,6 +1,6 @@
 package top.werls.nastoys.system.service.impl;
 
-import jakarta.annotation.Resource;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -79,5 +79,10 @@ public class SysUserServiceImpl implements SysUserService {
   @Override
   public SysUser findByUsername(String username) {
     return sysUserRepository.findByUsername(username);
+  }
+
+  @Override
+  public Optional<SysUser> findById(Long id) {
+    return sysUserRepository.findById(id);
   }
 }

@@ -30,8 +30,6 @@ public class ApiToken implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    private boolean revoked = false;
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
