@@ -19,9 +19,9 @@ import top.werls.nastoys.system.repository.SysUserRepository;
 @Component
 public class InitDataBase  implements ApplicationRunner {
 
-  private PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-  private SysUserRepository sysUserRepository;
+  private final SysUserRepository sysUserRepository;
 
   public InitDataBase(PasswordEncoder passwordEncoder, SysUserRepository sysUserRepository) {
     this.passwordEncoder = passwordEncoder;

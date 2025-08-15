@@ -19,7 +19,7 @@ spring:
         format_sql: false
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:db.sqlite
+    url: jdbc:sqlite:./data/nastoys.db
 management:
   endpoints:
     web:
@@ -29,7 +29,7 @@ logging:
   config: classpath:logback-spring-dev.xml
   file:
     path: classpath:/
-    name: log
+    name: data/log
   charset:
     file: UTF-8
 springdoc:
