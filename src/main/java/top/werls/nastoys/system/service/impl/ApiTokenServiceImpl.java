@@ -1,5 +1,7 @@
 package top.werls.nastoys.system.service.impl;
 
+import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import top.werls.nastoys.common.utils.JwtTokenUtils;
 import top.werls.nastoys.system.entity.ApiToken;
@@ -17,19 +19,20 @@ public class ApiTokenServiceImpl implements ApiTokenService {
 
     private final ApiTokenRepository apiTokenRepository;
 
-    private SysUserRepository sysUserRepository;
 
-    private final JwtTokenUtils jwtTokenUtils;
+
+  private final JwtTokenUtils jwtTokenUtils;
 
     public ApiTokenServiceImpl(ApiTokenRepository apiTokenRepository, JwtTokenUtils jwtTokenUtils) {
         this.apiTokenRepository = apiTokenRepository;
-        this.jwtTokenUtils = jwtTokenUtils;
+      this.jwtTokenUtils = jwtTokenUtils;
     }
 
     @Override
     public ApiToken createToken(SysUser user, String name) {
 
-        String tokenString = jwtTokenUtils.generateTokenWithoutExpiry(user.getUsername());
+//        String tokenString = jwtTokenUtils.generateTokenWithoutExpiry(user.getUsername());
+        String tokenString = UUID.randomUUID().toString();
         ApiToken apiToken = new ApiToken();
         apiToken.setUid(user.getUid());
         apiToken.setName(name);

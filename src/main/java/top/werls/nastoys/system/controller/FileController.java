@@ -19,8 +19,8 @@ import java.io.*;
  * @date created 2022/7/20
  * @since on
  */
-@RestController
-@RequestMapping("/file")
+//@RestController
+//@RequestMapping("/file")
 public class FileController {
 
   @Resource
