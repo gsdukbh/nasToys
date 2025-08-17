@@ -16,11 +16,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.werls.nastoys.common.utils.JwtTokenUtils;
 import top.werls.nastoys.config.ConfigProperties;
+import top.werls.nastoys.system.repository.SysUserRepository;
 import top.werls.nastoys.system.service.ApiTokenService;
 
 import java.io.IOException;
 import java.util.Arrays;
-import top.werls.nastoys.system.service.SysUserService;
 
 /**
  * @author leee
@@ -37,19 +37,19 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
   private final ApiTokenService apiTokenService;
 
-  private final SysUserService sysUserService;
+  private final SysUserRepository userRepository;
 
   public JwtAuthenticationTokenFilter(
       ConfigProperties configProperties,
       JwtTokenUtils tokenUtils,
       UserDetailsService userDetailsService,
       ApiTokenService apiTokenService,
-      SysUserService sysUserService) {
+      SysUserRepository sysUserService) {
     this.tokenPrefix = configProperties.getJwt().getTokenPrefix();
     this.tokenUtils = tokenUtils;
     this.userDetailsService = userDetailsService;
     this.apiTokenService = apiTokenService;
-    this.sysUserService = sysUserService;
+    this.userRepository = sysUserService;
   }
 
   /**
@@ -108,7 +108,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         var apiToken = apiTokenService.findByToken(authToken);
         if (apiToken.isPresent()) {
           Long uid = apiToken.get().getUid();
-          var u = sysUserService.findById(uid);
+          var u = userRepository.findById(uid);
           u.ifPresent(
               user -> {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());

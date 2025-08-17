@@ -3,6 +3,7 @@ package top.werls.nastoys.service;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.werls.nastoys.entity.Machine;
 import top.werls.nastoys.entity.WolLog;
 import top.werls.nastoys.repository.MachineRepository;
 import top.werls.nastoys.repository.WolLogRepository;
@@ -30,7 +31,7 @@ public class MachineService {
    * 保存机器信息
    * @param v 机器信息
    */
-  public void saveMachine(top.werls.nastoys.entity.Machine v) {
+  public void saveMachine(Machine v) {
     machineRepository.save(v);
   }
 

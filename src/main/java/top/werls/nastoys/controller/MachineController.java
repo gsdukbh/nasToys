@@ -2,6 +2,7 @@ package top.werls.nastoys.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.security.PublicKey;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,14 +48,23 @@ public class MachineController {
   @PostMapping("/addMachine")
   public ResultData<String> addMachine(@Valid @RequestBody Machine machine) {
     machine.setMac(machine.getMac().toLowerCase());
-    machineRepository.save(machine);
     return ResultData.success("设备已添加: " + machine.getName());
+  }
+
+  @PostMapping("/registerMachine")
+  public ResultData<Machine> registerMachine(@Valid @RequestBody Machine machine) {
+    String mac = machine.getMac().toLowerCase();
+    machine.setId(null); // 确保是新设备
+    machine.setMac(mac);
+    Machine savedMachine = machineRepository.save(machine);
+    return ResultData.success(savedMachine);
   }
 
   @Operation (summary = "更新机器信息", description = "更新指定机器的信息")
   @PostMapping("/updateMachine")
   public ResultData<Machine>  updateMachine( @Valid @RequestBody Machine machine) {
-    machine.setMac(machine.getMac().toLowerCase());
+    String mac = machine.getMac().toLowerCase();
+    machine.setMac(mac);
     Machine updatedMachine = machineRepository.save(machine);
     return ResultData.success(updatedMachine);
   }

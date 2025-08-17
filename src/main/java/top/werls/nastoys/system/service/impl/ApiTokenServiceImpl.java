@@ -18,11 +18,9 @@ public class ApiTokenServiceImpl implements ApiTokenService {
 
   private final ApiTokenRepository apiTokenRepository;
 
-
   private final JwtTokenUtils jwtTokenUtils;
 
-  public ApiTokenServiceImpl(ApiTokenRepository apiTokenRepository,
-      JwtTokenUtils jwtTokenUtils) {
+  public ApiTokenServiceImpl(ApiTokenRepository apiTokenRepository, JwtTokenUtils jwtTokenUtils) {
     this.apiTokenRepository = apiTokenRepository;
     this.jwtTokenUtils = jwtTokenUtils;
   }
@@ -32,12 +30,14 @@ public class ApiTokenServiceImpl implements ApiTokenService {
 
     //        String tokenString = jwtTokenUtils.generateTokenWithoutExpiry(user.getUsername());
 
-    String tokenString = JwtTokenUtils.generateApiToken("nastoys", 21);
+    String tokenString = JwtTokenUtils.generateApiToken("nastoys", 40);
     ApiToken apiToken = new ApiToken();
     apiToken.setUid(user.getUid());
     apiToken.setName(name);
     apiToken.setToken(JwtTokenUtils.hashString(tokenString));
-    return apiTokenRepository.save(apiToken);
+    ApiToken res = apiTokenRepository.save(apiToken);
+    res.setToken(tokenString); // Store the plain token string for later use
+    return res;
   }
 
   @Override
@@ -77,5 +77,4 @@ public class ApiTokenServiceImpl implements ApiTokenService {
   public Optional<ApiToken> getTokenById(Long tokenId) {
     return apiTokenRepository.findById(tokenId);
   }
-
 }
