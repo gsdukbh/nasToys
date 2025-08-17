@@ -1,4 +1,4 @@
-namespace WindowsWorkerService
+namespace WindowsWorkerService.Service
 {
     public class Worker : BackgroundService
     {

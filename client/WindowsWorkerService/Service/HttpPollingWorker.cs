@@ -1,7 +1,8 @@
 ﻿using System.Net.NetworkInformation;
 using System.Text;
+using WindowsWorkerService.Entity;
 
-namespace WindowsWorkerService;
+namespace WindowsWorkerService.Service;
 
 using System.Text.Json;
 
@@ -12,13 +13,16 @@ public class HttpPollingWorker : BackgroundService
 {
     private readonly ILogger<HttpPollingWorker> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ConfigurationService _configurationService;
 
     // 通过依赖注入获取日志记录器和 HttpClient 工厂
     public HttpPollingWorker(ILogger<HttpPollingWorker> logger,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory, ConfigurationService configurationService)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
+        _configurationService = configurationService;
+
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,12 +37,18 @@ public class HttpPollingWorker : BackgroundService
                 // 从工厂创建一个已经配置好认证信息的 HttpClient 实例
                 var httpClient = _httpClientFactory.CreateClient("SpringBootAPI");
 
+                var appSettings = await _configurationService.GetApiSettingsAsync();
+                var configuredMac = appSettings?.MacAddress;
                 // 获取本地网卡的mac 
-                // 这里可以使用 System.Net.NetworkInformation 命名空间来获取本地网卡信息
-                // 例如：获取第一个网卡的 MAC 地址
-                 var macAddress = GetMacAddress();
-                //var macAddress = "2C:F0:5D:36:2A:26";
-
+                var macAddress = "";
+                if (!String.IsNullOrEmpty(configuredMac))
+                {
+                    macAddress = configuredMac;
+                }
+                else
+                {
+                    macAddress = GetMacAddress();
+                }
 
                 // 向 Spring Boot 后端发送 GET 请求
                 var response = await httpClient.GetAsync($@"/api/wolLog?mac={macAddress}", stoppingToken);

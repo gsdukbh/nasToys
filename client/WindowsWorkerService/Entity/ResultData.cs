@@ -1,4 +1,4 @@
-﻿namespace WindowsWorkerService;
+﻿namespace WindowsWorkerService.Entity;
 
 public class ResultData<T>
 {
