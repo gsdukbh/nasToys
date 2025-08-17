@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using WindowsWorkerService.Entity;
 
 namespace WindowsWorkerService;
@@ -85,7 +86,8 @@ public class ConfigurationService
             {
                 var options = new JsonSerializerOptions
                 {
-                    PropertyNameCaseInsensitive = true
+                    PropertyNameCaseInsensitive = true,
+                    TypeInfoResolver = new DefaultJsonTypeInfoResolver()
                 };
                 
                 var apiSettings = JsonSerializer.Deserialize<ApiSettings>(apiSettingsElement.GetRawText(), options);
@@ -119,7 +121,12 @@ public class ConfigurationService
             {
                 // 读取现有配置文件
                 var jsonContent = await File.ReadAllTextAsync(_configFilePath);
-                configDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) 
+                var optionsTo = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+                };
+                configDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent,optionsTo) 
                            ?? new Dictionary<string, object>();
             }
             else
@@ -131,7 +138,8 @@ public class ConfigurationService
             // 序列化ApiSettings为JsonElement
             var apiSettingsJson = JsonSerializer.Serialize(apiSettings, new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver()
             });
             
             var apiSettingsElement = JsonSerializer.Deserialize<JsonElement>(apiSettingsJson);
@@ -143,6 +151,7 @@ public class ConfigurationService
             var options = new JsonSerializerOptions 
             { 
                 WriteIndented = true,
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
             

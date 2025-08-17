@@ -1,5 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using WindowsWorkerService.Entity;
 
 namespace WindowsWorkerService.Service;
@@ -57,8 +58,12 @@ public class HttpPollingWorker : BackgroundService
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync(stoppingToken);
-                    var tasks = JsonSerializer.Deserialize<ResultData<WolLog>>(responseBody,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+                    };
+                    var tasks = JsonSerializer.Deserialize<ResultData<WolLog>>(responseBody, options);
                     if (tasks != null && tasks.Code == 200)
                     {
                         var wolLog = tasks.Data;
@@ -73,11 +78,11 @@ public class HttpPollingWorker : BackgroundService
                             wolLog.CompletedTime = DateTime.Now;
 
                             // 序列化 wolLog 对象为 JSON 字符串  
-                            var options = new JsonSerializerOptions
+                            var options1 = new JsonSerializerOptions
                             {
                                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                             };
-                            var json = JsonSerializer.Serialize(wolLog, options);
+                            var json = JsonSerializer.Serialize(wolLog, options1);
                             // 创建 StringContent，指定内容类型为 application/json
                             var content = new StringContent(json, Encoding.UTF8, "application/json");
                             // 发送 POST 请求

@@ -2,13 +2,11 @@
 Description= nas 管理
 
 [Service]
-Environment=APP_USERNAME=admin  # your_username
-Environment=APP_PASSWORD=admin  # your_password
-ExecStart=java -jar /opt/nastoys/nastoys.jar
+EnvironmentFile=-/opt/nastoys/.env
+ExecStart=java -jar /opt/nastoys/nasToys.jar
 WorkingDirectory=/opt/nastoys
 StandardOutput=journal
 StandardError=journal
-
 
 [Install]
 WantedBy=multi-user.target

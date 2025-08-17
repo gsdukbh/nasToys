@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using WindowsWorkerService.Entity;
 
 
@@ -114,7 +115,13 @@ public class InitialApp : BackgroundService
 
         // 创建一个已经配置好认证信息的 HttpClient 实例
         var httpClient = _httpClientFactory.CreateClient("SpringBootAPI");
-        String json =  JsonSerializer.Serialize(info, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+        };
+        String json =  JsonSerializer.Serialize(info,options);
         HttpContent body = new StringContent(json, Encoding.UTF8, "application/json");
         // 向 Spring Boot 后端发送 Post 请求
         var response = await httpClient.PostAsync($"/api/machine/registerMachine", body);

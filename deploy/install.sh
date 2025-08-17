@@ -8,3 +8,8 @@ sdk version
 sdk install java 21.0.2-graalce
 
 # copy
+cp nastoys.service /etc/systemd/system/nastoys.service
+#
+systemctl enable nastoys.service
+systemctl start nastoys.service
+systemctl status nastoys.service

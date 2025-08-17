@@ -1,8 +1,11 @@
-﻿namespace WindowsWorkerService.Entity;
+﻿using System.Text.Json.Serialization;
+
+namespace WindowsWorkerService.Entity;
 
 /// <summary>
 /// API 设置配置类
 /// </summary>
+[JsonSerializable(typeof(ApiSettings))]
 public class ApiSettings
 {
     public string BaseUrl { get; set; }
