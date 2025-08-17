@@ -20,16 +20,18 @@
           <thead>
           <tr>
             <th>名称</th>
-            <th>Token 前缀</th>
+            <th>Token hash</th>
             <th>创建日期</th>
+            <th>最后使用日期</th>
             <th>操作</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="token in tokens" :key="token.id">
             <td><strong>{{ token.name }}</strong></td>
-            <td><code>{{ token.prefix }}...</code></td>
+            <td><code>{{ token.token }}...</code></td>
             <td>{{ formatDate(token.createdAt) }}</td>
+            <td>{{ formatDate(token.lastUsedAt) }}</td>
             <td>
               <button class="btn btn-sm btn-outline-danger" @click="confirmRevoke(token)">
                 <i class="bi bi-trash"></i> 撤销
