@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author Li JiaWei
- * @version TODO
+ * @version 1
  * @date 2022/11/27
  * @since on
  */
@@ -48,7 +48,7 @@ public class RequestLimitAspect {
     int minute = requestLimit.minute();
     String key = request.getRemoteAddr();
     if (key == null) {
-      throw new RuntimeException("无法获取客户端IP，无法进行限流");
+      throw new RuntimeException("访问过于频繁，请稍后再尝试");
     }
     Integer current = cache.get(key);
     if (current != null) {
