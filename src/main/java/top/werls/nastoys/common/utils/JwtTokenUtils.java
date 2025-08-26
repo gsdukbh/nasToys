@@ -95,7 +95,7 @@ public class JwtTokenUtils {
   }
 
   /**
-   * 辅助方法：将字节数组转换为十六进制字符串。
+   * 将字节数组转换为十六进制字符串。
    *
    * @param hash 哈希计算后得到的字节数组
    * @return     十六进制表示的字符串

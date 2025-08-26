@@ -19,6 +19,12 @@ import java.io.IOException;
 @Component
 public class CustomizeAuthEntryPoint implements AuthenticationEntryPoint {
 
+  private final Gson gson;
+
+  public CustomizeAuthEntryPoint(Gson gson) {
+    this.gson = gson;
+  }
+
   /**
    * Commences an authentication scheme.
    * <p>
@@ -37,8 +43,6 @@ public class CustomizeAuthEntryPoint implements AuthenticationEntryPoint {
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException authException) throws IOException, ServletException {
-
-    Gson gson = new Gson();
     response.setCharacterEncoding("UTF-8");
     response.setContentType("application/json");
     response.getWriter().println(gson.toJson(ResultData.notLogin(authException.getMessage())));
